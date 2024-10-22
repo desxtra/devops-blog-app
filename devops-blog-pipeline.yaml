@@ -257,6 +257,10 @@ Resources:
                 Effect: Allow
                 Resource: '*'
 
+  ### S3 for Codepipeline ###
+  CodePipelineArtifactStoreS3Bucket:
+    Type: AWS::S3::Bucket
+
   ### AWS CodePipeline Resources ###
   SampleCodePipeline:
     Type: AWS::CodePipeline::Pipeline
