@@ -166,17 +166,7 @@ Resources:
             chmod +x ./install
             ./install auto
             #Sending signal to CloudFormation
-            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource EC2Instance --region ${AWS::Region}
-  
-  ### Github Resources ###
-  DevOpsBlogAppRepo:
-    Type: AWS::CodeStar::GitHubRepository
-    Properties:
-      RepositoryName: devops-blog-app               
-      RepositoryOwner: desxtra      
-      RepositoryAccessToken: !Ref GitHubToken
-      IsPrivate: false                       
-      EnableIssues: true                           
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource EC2Instance --region ${AWS::Region}           
 
   ### Services roles ###
   CodeDeployServiceRole:
@@ -302,7 +292,7 @@ Resources:
                 Owner: desxtra
                 Repo: devops-blog-app
                 Branch: main
-                OAuthToken: !Sub '{{resolve:secretsmanager:GitHubTokenAccess:SecretString}}'
+                OAuthToken: !Sub '{{resolve:secretsmanager:GitHubToken:SecretString}}'
         - Name: Deploy
           Actions:
             - Name: Deploy
