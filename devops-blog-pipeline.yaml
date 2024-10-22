@@ -186,7 +186,60 @@ Resources:
           - CodeBuild
     Type: AWS::IAM::Role
 
-  ### AWS CodeDeploy zResources ###
+  ### AWS CodePipeline Resources ###
+  SampleCodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStoreS3Bucket
+      Name: !Ref CodePipelineName
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: "1"
+                Provider: GitHub
+              OutputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                Owner: desxtra
+                Repo: devops-blog-app
+                Branch: main
+                OAuthToken: !Ref GitHubToken # Reference to the token stored in Secrets Manager or Parameter Store
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: "1"
+                Provider: CodeDeploy
+              Configuration:
+                ApplicationName: !Ref CodeDeployApplication
+                DeploymentGroupName: !Ref DeploymentGroup
+              InputArtifacts:
+                - Name: SourceArtifact
+        - Name: AcceptanceTest
+          Actions:
+            - Name: AcceptanceTest
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName: DevOpsBlogBuild
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+
+  ### AWS CodeDeploy Resources ###
   CodeDeployApplication:
     Type: AWS::CodeDeploy::Application
     DependsOn: EC2Instance
