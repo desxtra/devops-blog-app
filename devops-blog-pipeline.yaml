@@ -283,7 +283,7 @@ Resources:
                 - Name: SourceArtifact
               Configuration:
                 Owner: desxtra
-                Repo: https://github.com/desxtra/devops-blog-app
+                Repo: devops-blog-app
                 Branch: main
                 OAuthToken: !Sub '{{resolve:secretsmanager:GitHubToken:SecretString}}'
         - Name: Deploy
