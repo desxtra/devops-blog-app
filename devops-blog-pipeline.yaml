@@ -187,68 +187,68 @@ Resources:
     Type: AWS::IAM::Role
 
   CodePipelineServiceRole:
-  Type: "AWS::IAM::Role"
-  DependsOn: CodeDeployServiceRole
-  Properties:
-    AssumeRolePolicyDocument:
-      Version: "2012-10-17"
-      Statement:
-        - Effect: "Allow"
-          Principal:
-            Service:
-              - "codepipeline.amazonaws.com"
-          Action:
-            - "sts:AssumeRole"
-    Policies:
-      - PolicyName: CodeDeployPolicy
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-            - Action:
-                - "codedeploy:CreateDeployment"
-                - "codedeploy:GetApplication"
-                - "codedeploy:GetApplicationRevision"
-                - "codedeploy:GetDeployment"
-                - "codedeploy:GetDeploymentConfig"
-                - "codedeploy:RegisterApplicationRevision"
-              Effect: Allow
-              Resource: '*'
-      - PolicyName: S3Permissions
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-            - Action:
-                - "s3:PutObject"
-                - "s3:GetObjectAcl"
-                - "s3:GetObject"
-                - "s3:ListBucket"
-                - "s3:GetBucketVersioning"
-                - "s3:GetBucketAcl"
-                - "s3:GetBucketLocation"
-                - "s3:GetObjectVersion"
-              Effect: Allow
-              Resource: '*'
-      - PolicyName: GitHubPermissions
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-            - Action:
-                - "codepipeline:StartPipelineExecution"  # Adjust as needed
-                - "codepipeline:GetPipeline"               # Adjust as needed
-                - "codepipeline:GetPipelineExecution"      # Adjust as needed
-              Effect: Allow
-              Resource: '*'
-      - PolicyName: CodeBuildPermissions
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-            - Action:
-                - "codebuild:BatchGetBuilds"
-                - "codebuild:StartBuild"
-                - "codebuild:BatchGetBuildBatches"
-                - "codebuild:StartBuildBatch"
-              Effect: Allow
-              Resource: '*'
+    Type: "AWS::IAM::Role"
+    DependsOn: CodeDeployServiceRole
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "codepipeline.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: CodeDeployPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "codedeploy:CreateDeployment"
+                  - "codedeploy:GetApplication"
+                  - "codedeploy:GetApplicationRevision"
+                  - "codedeploy:GetDeployment"
+                  - "codedeploy:GetDeploymentConfig"
+                  - "codedeploy:RegisterApplicationRevision"
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: S3Permissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "s3:PutObject"
+                  - "s3:GetObjectAcl"
+                  - "s3:GetObject"
+                  - "s3:ListBucket"
+                  - "s3:GetBucketVersioning"
+                  - "s3:GetBucketAcl"
+                  - "s3:GetBucketLocation"
+                  - "s3:GetObjectVersion"
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: GitHubPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "codepipeline:StartPipelineExecution"  # Adjust as needed
+                  - "codepipeline:GetPipeline"               # Adjust as needed
+                  - "codepipeline:GetPipelineExecution"      # Adjust as needed
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: CodeBuildPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "codebuild:BatchGetBuilds"
+                  - "codebuild:StartBuild"
+                  - "codebuild:BatchGetBuildBatches"
+                  - "codebuild:StartBuildBatch"
+                Effect: Allow
+                Resource: '*'
 
   ### AWS CodePipeline Resources ###
 SampleCodePipeline:
