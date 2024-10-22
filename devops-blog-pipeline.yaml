@@ -1,4 +1,16 @@
 AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  ### Adjustable Pipeline Name ###
+  CodePipelineName: 
+    Type: String
+    Default: DevOpsBlogApp
+    Description: A name for CodePipeline 
+
+  ### Github Token for this Project ###
+  GitHubToken:
+    Type: String
+    Default: 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
+
 Resources:
   ### NETWORKING ####
   VPC:
