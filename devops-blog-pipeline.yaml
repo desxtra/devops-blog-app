@@ -6,6 +6,11 @@ Parameters:
     Default: DevOpsBlogApp
     Description: A name for CodePipeline 
 
+  ### Github Token for this Project ###
+  GitHubToken:
+    Type: String
+    Description: Github tokens used for pipeline
+
 Resources:
   ### NETWORKING ####
   VPC:
@@ -281,7 +286,7 @@ Resources:
                 Owner: desxtra
                 Repo: devops-blog-app
                 Branch: main
-                OAuthToken: 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
+                OAuthToken: !Ref GitHubToken
         - Name: Deploy
           Actions:
             - Name: Deploy
