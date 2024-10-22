@@ -1,10 +1,17 @@
 AWSTemplateFormatVersion: 2010-09-09
+Description: Creating DevOps Blog Ap with Automation using pipeline and git 
+
 Parameters:
   ### Adjustable Pipeline Name ###
   CodePipelineName: 
     Type: String
     Default: DevOpsBlogApp
-    Description: A name for CodePipeline 
+    Description: A name for CodePipeline
+
+  GitHubToken:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: The GitHub access token stored in SSM Parameter Store
+    Default: "/myapp/github_token"
 
 Resources:
   ### NETWORKING ####
@@ -160,6 +167,16 @@ Resources:
             ./install auto
             #Sending signal to CloudFormation
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource EC2Instance --region ${AWS::Region}
+  
+  ### Github Resources ###
+  DevOpsBlogAppRepo:
+    Type: AWS::CodeStar::GitHubRepository
+    Properties:
+      RepositoryName: devops-blog-app               
+      RepositoryOwner: desxtra      
+      RepositoryAccessToken: !Ref GitHubTokenAccess
+      IsPrivate: false                       
+      EnableIssues: true                           
 
   ### Services roles ###
   CodeDeployServiceRole:
@@ -285,7 +302,7 @@ Resources:
                 Owner: desxtra
                 Repo: devops-blog-app
                 Branch: main
-                OAuthToken: !Sub '{{resolve:secretsmanager:GitHubToken:SecretString}}'
+                OAuthToken: !Sub '{{resolve:secretsmanager:GitHubTokenAccess:SecretString}}'
         - Name: Deploy
           Actions:
             - Name: Deploy
