@@ -9,7 +9,7 @@ Parameters:
   ### Github Token for this Project ###
   GitHubToken:
     Type: String
-    Default: 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
+    Default: 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
 
 Resources:
   ### NETWORKING ####
