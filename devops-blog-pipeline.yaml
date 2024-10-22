@@ -186,7 +186,7 @@ Resources:
           - CodeBuild
     Type: AWS::IAM::Role
 
-  ### AWS CodeDeploy ###
+  ### AWS CodeDeploy zResources ###
   CodeDeployApplication:
     Type: AWS::CodeDeploy::Application
     DependsOn: EC2Instance
@@ -208,3 +208,5 @@ Resources:
           Value: CodePipelineBlog
           Type: KEY_AND_VALUE
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
+
+  ### AWS CodeBuild Resources ###
