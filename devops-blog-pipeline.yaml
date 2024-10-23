@@ -7,12 +7,7 @@ Parameters:
     Type: String
     Default: DevOpsBlogApp
     Description: A name for CodePipeline
-
-  GitHubToken:
-    Type: AWS::SSM::Parameter::Value<String>
-    Description: The GitHub access token stored in SSM Parameter Store
-    Default: "/myapp/github_token"
-
+    
 Resources:
   ### NETWORKING ####
   VPC:
@@ -292,7 +287,7 @@ Resources:
                 Owner: desxtra
                 Repo: devops-blog-app
                 Branch: main
-                OAuthToken: !Ref GitHubToken
+                ConnectionArn: arn:aws:codeconnections:us-east-1:834549009763:connection/d75684b9-3d62-4432-bc54-eac2ba32765f
         - Name: Deploy
           Actions:
             - Name: Deploy
