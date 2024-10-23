@@ -292,7 +292,7 @@ Resources:
                 Owner: desxtra
                 Repo: devops-blog-app
                 Branch: main
-                OAuthToken: !Sub '{{resolve:secretsmanager:GitHubToken:SecretString}}'
+                OAuthToken: !Ref GitHubToken
         - Name: Deploy
           Actions:
             - Name: Deploy
