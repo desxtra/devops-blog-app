@@ -284,8 +284,6 @@ Resources:
               OutputArtifacts:
                 - Name: SourceArtifact
               Configuration:
-                Owner: desxtra
-                Repo: devops-blog-app
                 Branch: main
                 ConnectionArn: arn:aws:codeconnections:us-east-1:834549009763:connection/d75684b9-3d62-4432-bc54-eac2ba32765f
         - Name: Deploy
