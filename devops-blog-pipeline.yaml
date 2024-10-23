@@ -284,7 +284,7 @@ Resources:
               OutputArtifacts:
                 - Name: SourceArtifact
               Configuration:
-                Branch: main
+                FullRepositoryId: desxtra/devops-blog-app
                 ConnectionArn: arn:aws:codeconnections:us-east-1:834549009763:connection/d75684b9-3d62-4432-bc54-eac2ba32765f
         - Name: Deploy
           Actions:
