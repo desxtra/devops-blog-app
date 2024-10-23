@@ -7,7 +7,7 @@ Parameters:
     Type: String
     Default: DevOpsBlogApp
     Description: A name for CodePipeline
-    
+
 Resources:
   ### NETWORKING ####
   VPC:
@@ -279,7 +279,7 @@ Resources:
               ActionTypeId:
                 Category: Source
                 Owner: ThirdParty
-                Version: "1"
+                Version: "2"
                 Provider: GitHub
               OutputArtifacts:
                 - Name: SourceArtifact
