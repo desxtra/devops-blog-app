@@ -297,10 +297,10 @@ Resources:
                 Provider: CodeStarSourceConnection
               OutputArtifacts:
                 - Name: SourceArtifact
-              Configuration:1
+              Configuration: 
                 BranchName: main
                 FullRepositoryId: desxtra/devops-blog-app
-                ConnectionArn: arn:aws:codeconnections:us-east-1:834549009763:connection/d75684b9-3d62-4432-bc54-eac2ba32765f
+                ConnectionArn: arn:aws:codeconnections:us-east-1:834549009763:connection/3a0b9739-c5bd-4955-aa4e-989b23eb1679
         - Name: Deploy
           Actions:
             - Name: Deploy
