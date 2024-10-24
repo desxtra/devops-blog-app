@@ -480,7 +480,4 @@ Resources:
         Location: !Join
           - ''
           - - 'https://github.com/desxtra/devops-blog-app.git'  
-        GitCloneDepth: 1  
-        GitSubmodulesConfig:  
-          fetchSubmodules: true
     Type: AWS::CodeBuild::Project
