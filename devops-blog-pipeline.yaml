@@ -263,7 +263,7 @@ Resources:
   CodePipelineArtifactStoreS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: DevOpsBlogApp_Desxtra0812
+      BucketName: devopsblogapp_desxtra0812
 
   ### AWS CodePipeline Resources ###
   SampleCodePipeline:
