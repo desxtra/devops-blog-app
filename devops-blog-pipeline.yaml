@@ -9,7 +9,7 @@ Parameters:
     Description: A name for CodePipeline
 
 Resources:
-  ### NETWORKING ####
+  ### Network Resources ####
   VPC:
     Type: AWS::EC2::VPC
     Properties:
