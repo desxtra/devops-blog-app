@@ -262,6 +262,20 @@ Resources:
   ### S3 for Codepipeline ###
   CodePipelineArtifactStoreS3Bucket:
     Type: AWS::S3::Bucket
+    Properties:
+      BucketName: DevOpsBlogApp_Desxtra0812
+
+  ### Connection for AWS Codepipeline ###
+  PipelineConnectionToGitHub:
+    Type: AWS::CodeConnections::Connection
+    Properties:
+      ConnectionName: DevOpsBlogApp
+      HostArn: arn:aws:codeconnections:us-east-1:834549009763:connection/3a0b9739-c5bd-4955-aa4e-989b23eb1679
+      ProviderType: GitHub
+      Tags: 
+        - Key: Name
+          Value: DevOpsConnection 
+
 
   ### AWS CodePipeline Resources ###
   SampleCodePipeline:
@@ -283,7 +297,8 @@ Resources:
                 Provider: CodeStarSourceConnection
               OutputArtifacts:
                 - Name: SourceArtifact
-              Configuration:
+              Configuration:1
+                BranchName: main
                 FullRepositoryId: desxtra/devops-blog-app
                 ConnectionArn: arn:aws:codeconnections:us-east-1:834549009763:connection/d75684b9-3d62-4432-bc54-eac2ba32765f
         - Name: Deploy
