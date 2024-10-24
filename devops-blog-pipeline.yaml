@@ -355,7 +355,7 @@ Resources:
                 Version: '1'
                 Provider: CodeStarSourceConnection
               OutputArtifacts:
-                - Name: SourceArtifact
+                - Name: SourceArtifact1
               Configuration:
                 BranchName: main
                 FullRepositoryId: desxtra/devops-blog-app
@@ -410,4 +410,77 @@ Resources:
           Value: CodePipelineBlog
           Type: KEY_AND_VALUE
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
+
   ### AWS CodeBuild Resources ###
+  CodeBuildPolicy:
+    Description: Setting IAM policy for service role for CodeBuild
+    Properties:
+      PolicyDocument:
+        Statement:
+        - Action:
+          - codebuild:CreateReportGroup
+          - codebuild:CreateReport
+          - codebuild:UpdateReport
+          - codebuild:BatchGetReports
+          Effect: Allow
+          Resource: '*'
+        - Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Effect: Allow
+          Resource: '*'
+        - Action:
+          - ec2:Describe*
+          Effect: Allow
+          Resource: '*'
+        - Action:
+          - s3:PutObject
+          - s3:GetObject
+          - s3:GetObjectVersion
+          Effect: Allow
+          Resource:
+          - !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref 'CodePipelineArtifactStoreS3Bucket'
+          - !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref 'CodePipelineArtifactStoreS3Bucket'
+              - /*
+      PolicyName: !Join
+        - '-'
+        -  - !Ref 'AWS::StackName'
+           - CodeBuildPolicy2
+      Roles:
+      - !Ref 'CodeBuildRole'
+    Type: AWS::IAM::Policy
+
+  CodeBuildProject:
+    DependsOn:
+      - CodeBuildPolicy
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Description: !Join
+        - ''
+        - - 'CodeBuild Project for '
+          - !Ref 'AWS::StackName'
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        Type: LINUX_CONTAINER
+      Name: DevOpsBlogBuild
+      ServiceRole: !Ref 'CodeBuildRole'
+      Source:
+        Type: GITHUB  
+        BuildSpec: 'acctests-buildspec.yml'
+        Location: !Join
+          - ''
+          - - 'https://github.com/desxtra/devops-blog-app.git'  
+        GitCloneDepth: 1  
+        GitSubmodulesConfig:  
+          fetchSubmodules: true
+    Type: AWS::CodeBuild::Project
