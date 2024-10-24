@@ -258,6 +258,14 @@ Resources:
                   - "codebuild:StartBuildBatch"
                 Effect: Allow
                 Resource: '*'
+        - PolicyName: CodeConnections
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action: 
+                  - "codestar-connections:UseConnection"
+                Effect: Allow
+                Resource: "arn:aws:codeconnections:us-east-1:834549009763:connection/3a0b9739-c5bd-4955-aa4e-989b23eb1679"
 
   ### S3 for Codepipeline ###
   CodePipelineArtifactStoreS3Bucket:
