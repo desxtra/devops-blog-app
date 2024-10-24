@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Creating DevOps Blog Ap with Automation using pipeline and git 
+Description: Creating DevOps Blog Ap with Automation using pipeline and git
 
 Parameters:
   ### Adjustable Pipeline Name ###
-  CodePipelineName: 
+  CodePipelineName:
     Type: String
     Default: DevOpsBlogApp
     Description: A name for CodePipeline
@@ -11,7 +11,7 @@ Parameters:
 Resources:
   ### NETWORKING ####
   VPC:
-    Type: 'AWS::EC2::VPC'
+    Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
       EnableDnsHostnames: true
@@ -21,43 +21,45 @@ Resources:
           Value: DevOps Blog VPC
 
   InternetGateway:
-    Type: 'AWS::EC2::InternetGateway'
+    Type: AWS::EC2::InternetGateway
     DependsOn: VPC
 
   AttachGateway:
-    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
 
   PublicSubnet1:
-    Type: 'AWS::EC2::Subnet'
+    Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.1.0/24
       MapPublicIpOnLaunch: true
       AvailabilityZone: !Select
         - '0'
-        - Fn::GetAZs: !Ref 'AWS::Region'
+        - !GetAZs
+          Ref: AWS::Region
       Tags:
         - Key: Name
           Value: Public Subnet 1
 
   PublicSubnet2:
-    Type: 'AWS::EC2::Subnet'
+    Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.2.0/24
       MapPublicIpOnLaunch: true
       AvailabilityZone: !Select
         - '1'
-        - Fn::GetAZs: !Ref 'AWS::Region'
+        - !GetAZs
+          Ref: AWS::Region
       Tags:
         - Key: Name
           Value: Public Subnet 2
 
   PublicRouteTable:
-    Type: 'AWS::EC2::RouteTable'
+    Type: AWS::EC2::RouteTable
     DependsOn:
       - AttachGateway
     Properties:
@@ -67,7 +69,7 @@ Resources:
           Value: Public Route Table
 
   PublicRoute:
-    Type: 'AWS::EC2::Route'
+    Type: AWS::EC2::Route
     DependsOn:
       - VPC
       - AttachGateway
@@ -78,19 +80,19 @@ Resources:
       GatewayId: !Ref InternetGateway
 
   PublicSubnet1RouteTableAssociation:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet1
       RouteTableId: !Ref PublicRouteTable
 
   PublicSubnet2RouteTableAssociation:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet2
       RouteTableId: !Ref PublicRouteTable
 
   WebSecurityGroup:
-    Type: 'AWS::EC2::SecurityGroup'
+    Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable HTTP access
       VpcId: !Ref VPC
@@ -109,21 +111,21 @@ Resources:
 
   ### EC2 Resources ###
   EC2InstanceProfileRoleForCodeDeploy:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
               Service:
-                - "ec2.amazonaws.com"
+                - ec2.amazonaws.com
             Action:
-              - "sts:AssumeRole"
+              - sts:AssumeRole
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy"
-        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-        - "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
 
   EC2InstanceprofileforCodeDeploy:
     Type: AWS::IAM::InstanceProfile
@@ -136,7 +138,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-        
+
     Properties:
       IamInstanceProfile: !Ref EC2InstanceprofileforCodeDeploy
       ImageId: ami-06b21ccaeff8cd686
@@ -148,78 +150,77 @@ Resources:
       Tags:
         - Key: Name
           Value: CodePipelineBlog
-      UserData:
-        Fn::Base64:
-          !Sub |
-            #!/bin/bash -xe
-            yum -y update
-            yum install -y ruby
-            yum install -y aws-cli
-            cd /home/ec2-user
-            #Downloading & Installing CodeDeploy Agent as per https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-simple-s3.html#S3-create-instances
-            aws s3 cp s3://aws-codedeploy-${AWS::Region}/latest/install . --region ${AWS::Region}
-            chmod +x ./install
-            ./install auto
-            #Sending signal to CloudFormation
-            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource EC2Instance --region ${AWS::Region}           
+      UserData: !Base64
+        Fn::Sub: |
+          #!/bin/bash -xe
+          yum -y update
+          yum install -y ruby
+          yum install -y aws-cli
+          cd /home/ec2-user
+          #Downloading & Installing CodeDeploy Agent as per https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-simple-s3.html#S3-create-instances
+          aws s3 cp s3://aws-codedeploy-${AWS::Region}/latest/install . --region ${AWS::Region}
+          chmod +x ./install
+          ./install auto
+          #Sending signal to CloudFormation
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource EC2Instance --region ${AWS::Region}
 
   ### Services roles ###
   CodeDeployServiceRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
               Service:
-                - "codedeploy.amazonaws.com"
+                - codedeploy.amazonaws.com
             Action:
-              - "sts:AssumeRole"
+              - sts:AssumeRole
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
-  
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+
   CodeBuildRole:
     Description: Creating service role in IAM for AWS CodeBuild
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Action: sts:AssumeRole
-          Effect: Allow
-          Principal:
-            Service: codebuild.amazonaws.com
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
       Path: /
       RoleName: !Join
         - '-'
-        - - !Ref 'AWS::StackName'
+        - - !Ref AWS::StackName
           - CodeBuild
     Type: AWS::IAM::Role
 
   CodePipelineServiceRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     DependsOn: CodeDeployServiceRole
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
               Service:
-                - "codepipeline.amazonaws.com"
+                - codepipeline.amazonaws.com
             Action:
-              - "sts:AssumeRole"
+              - sts:AssumeRole
       Policies:
         - PolicyName: CodeDeployPolicy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
               - Action:
-                  - "codedeploy:CreateDeployment"
-                  - "codedeploy:GetApplication"
-                  - "codedeploy:GetApplicationRevision"
-                  - "codedeploy:GetDeployment"
-                  - "codedeploy:GetDeploymentConfig"
-                  - "codedeploy:RegisterApplicationRevision"
+                  - codedeploy:CreateDeployment
+                  - codedeploy:GetApplication
+                  - codedeploy:GetApplicationRevision
+                  - codedeploy:GetDeployment
+                  - codedeploy:GetDeploymentConfig
+                  - codedeploy:RegisterApplicationRevision
                 Effect: Allow
                 Resource: '*'
         - PolicyName: S3Permissions
@@ -227,14 +228,14 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Action:
-                  - "s3:PutObject"
-                  - "s3:GetObjectAcl"
-                  - "s3:GetObject"
-                  - "s3:ListBucket"
-                  - "s3:GetBucketVersioning"
-                  - "s3:GetBucketAcl"
-                  - "s3:GetBucketLocation"
-                  - "s3:GetObjectVersion"
+                  - s3:PutObject
+                  - s3:GetObjectAcl
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:GetBucketVersioning
+                  - s3:GetBucketAcl
+                  - s3:GetBucketLocation
+                  - s3:GetObjectVersion
                 Effect: Allow
                 Resource: '*'
         - PolicyName: GitHubPermissions
@@ -242,9 +243,9 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Action:
-                  - "codepipeline:StartPipelineExecution"    
-                  - "codepipeline:GetPipeline"               
-                  - "codepipeline:GetPipelineExecution"      
+                  - codepipeline:StartPipelineExecution
+                  - codepipeline:GetPipeline
+                  - codepipeline:GetPipelineExecution
                 Effect: Allow
                 Resource: '*'
         - PolicyName: CodeBuildPermissions
@@ -252,20 +253,20 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Action:
-                  - "codebuild:BatchGetBuilds"
-                  - "codebuild:StartBuild"
-                  - "codebuild:BatchGetBuildBatches"
-                  - "codebuild:StartBuildBatch"
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuildBatches
+                  - codebuild:StartBuildBatch
                 Effect: Allow
                 Resource: '*'
         - PolicyName: CodeConnections
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              - Action: 
-                  - "codestar-connections:UseConnection"
+              - Action:
+                  - codestar-connections:UseConnection
                 Effect: Allow
-                Resource: "arn:aws:codeconnections:us-east-1:834549009763:connection/3a0b9739-c5bd-4955-aa4e-989b23eb1679"
+                Resource: arn:aws:codeconnections:us-east-1:834549009763:connection/3a0b9739-c5bd-4955-aa4e-989b23eb1679
 
   ### S3 for Codepipeline ###
   CodePipelineArtifactStoreS3Bucket:
@@ -274,27 +275,25 @@ Resources:
       BucketName: devopsblogapp-desxtra0812
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
-  
+
   ### Custom resource to delete S3 bucket objects on stack deletion ###
   DeleteS3BucketObjects:
     Type: Custom::DeleteS3BucketObjects
     Properties:
-      ServiceToken: !GetAtt 'DeleteS3BucketObjectsLambdaFunction.Arn'
+      ServiceToken: !GetAtt DeleteS3BucketObjectsLambdaFunction.Arn
       BucketName: !Ref CodePipelineArtifactStoreS3Bucket
-  
+
   ### Lambda function to delete S3 bucket objects ###
   DeleteS3BucketObjectsLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
       Handler: index.handler
-      Role: !GetAtt 'DeleteS3BucketObjectsLambdaExecutionRole.Arn'
+      Role: !GetAtt DeleteS3BucketObjectsLambdaExecutionRole.Arn
       Code:
         ZipFile: |
           import boto3
           import cfnresponse
-  
           s3 = boto3.client('s3')
-  
           def handler(event, context):
             bucket_name = event['ResourceProperties']['BucketName']
             # List and delete all objects in the bucket
@@ -304,7 +303,7 @@ Resources:
               s3.delete_objects(Bucket=bucket_name, Delete={'Objects': delete_keys})
             cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, None)
       Runtime: python3.8
-  
+
   ### IAM role for Lambda function ###
   DeleteS3BucketObjectsLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -334,8 +333,8 @@ Resources:
                   - s3:DeleteObject
                   - s3:ListBucket
                 Resource:
-                  - !Sub 'arn:aws:s3:::${CodePipelineArtifactStoreS3Bucket}'
-                  - !Sub 'arn:aws:s3:::${CodePipelineArtifactStoreS3Bucket}/*'
+                  - !Sub arn:aws:s3:::${CodePipelineArtifactStoreS3Bucket}
+                  - !Sub arn:aws:s3:::${CodePipelineArtifactStoreS3Bucket}/*
 
   ### AWS CodePipeline Resources ###
   SampleCodePipeline:
@@ -353,11 +352,11 @@ Resources:
               ActionTypeId:
                 Category: Source
                 Owner: AWS
-                Version: "1"
+                Version: '1'
                 Provider: CodeStarSourceConnection
               OutputArtifacts:
                 - Name: SourceArtifact
-              Configuration: 
+              Configuration:
                 BranchName: main
                 FullRepositoryId: desxtra/devops-blog-app
                 ConnectionArn: arn:aws:codeconnections:us-east-1:834549009763:connection/3a0b9739-c5bd-4955-aa4e-989b23eb1679
@@ -367,7 +366,7 @@ Resources:
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
-                Version: "1"
+                Version: '1'
                 Provider: CodeDeploy
               Configuration:
                 ApplicationName: !Ref CodeDeployApplication
@@ -381,7 +380,7 @@ Resources:
                 Category: Build
                 Owner: AWS
                 Provider: CodeBuild
-                Version: "1"
+                Version: '1'
               Configuration:
                 ProjectName: DevOpsBlogBuild
               InputArtifacts:
@@ -404,12 +403,11 @@ Resources:
       DeploymentGroupName: MyDemoDeploymentGroup
       DeploymentConfigName: CodeDeployDefault.AllAtOnce
       DeploymentStyle:
-          DeploymentOption: WITHOUT_TRAFFIC_CONTROL
-          DeploymentType: IN_PLACE
+        DeploymentOption: WITHOUT_TRAFFIC_CONTROL
+        DeploymentType: IN_PLACE
       Ec2TagFilters:
         - Key: Name
           Value: CodePipelineBlog
           Type: KEY_AND_VALUE
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
-
   ### AWS CodeBuild Resources ###
