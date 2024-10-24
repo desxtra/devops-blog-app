@@ -355,7 +355,7 @@ Resources:
                 Version: '1'
                 Provider: CodeStarSourceConnection
               OutputArtifacts:
-                - Name: SourceArtifact1
+                - Name: SourceArtifact
               Configuration:
                 BranchName: main
                 FullRepositoryId: desxtra/devops-blog-app
