@@ -242,9 +242,9 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Action:
-                  - "codepipeline:StartPipelineExecution"  # Adjust as needed
-                  - "codepipeline:GetPipeline"               # Adjust as needed
-                  - "codepipeline:GetPipelineExecution"      # Adjust as needed
+                  - "codepipeline:StartPipelineExecution"    
+                  - "codepipeline:GetPipeline"               
+                  - "codepipeline:GetPipelineExecution"      
                 Effect: Allow
                 Resource: '*'
         - PolicyName: CodeBuildPermissions
