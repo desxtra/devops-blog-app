@@ -273,6 +273,69 @@ Resources:
     Properties:
       BucketName: devopsblogapp-desxtra0812
     DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+  
+  ### Custom resource to delete S3 bucket objects on stack deletion ###
+  DeleteS3BucketObjects:
+    Type: Custom::DeleteS3BucketObjects
+    Properties:
+      ServiceToken: !GetAtt 'DeleteS3BucketObjectsLambdaFunction.Arn'
+      BucketName: !Ref CodePipelineArtifactStoreS3Bucket
+  
+  ### Lambda function to delete S3 bucket objects ###
+  DeleteS3BucketObjectsLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Role: !GetAtt 'DeleteS3BucketObjectsLambdaExecutionRole.Arn'
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+  
+          s3 = boto3.client('s3')
+  
+          def handler(event, context):
+            bucket_name = event['ResourceProperties']['BucketName']
+            # List and delete all objects in the bucket
+            objects_to_delete = s3.list_objects_v2(Bucket=bucket_name)
+            if 'Contents' in objects_to_delete:
+              delete_keys = [{'Key': obj['Key']} for obj in objects_to_delete['Contents']]
+              s3.delete_objects(Bucket=bucket_name, Delete={'Objects': delete_keys})
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, None)
+      Runtime: python3.8
+  
+  ### IAM role for Lambda function ###
+  DeleteS3BucketObjectsLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: execution-role-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub 'arn:aws:s3:::${CodePipelineArtifactStoreS3Bucket}'
+                  - !Sub 'arn:aws:s3:::${CodePipelineArtifactStoreS3Bucket}/*'
 
   ### AWS CodePipeline Resources ###
   SampleCodePipeline:
