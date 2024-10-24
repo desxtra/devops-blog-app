@@ -1,3 +1,3 @@
-# devops-blog-app
+# DevOpsBlogApp
 
-devops blog app for automation with aws cloudformation and github
+Continous Integration DevOpsBlogApp for automation with aws cloudformation and github
